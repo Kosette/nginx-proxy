@@ -38,7 +38,7 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: |
-            nginxproxy/nginx-proxy
+            ${{secrets.DOCKERHUB_USERNAME}}/nginx-proxy
           tags: |
             type=raw,value=${{ inputs.image_tag }},enable=${{ matrix.flavor == 'debian' }}
             type=raw,value=${{ inputs.image_tag }},suffix=-alpine,enable=${{ matrix.flavor == 'alpine' }}
@@ -77,7 +77,7 @@ jobs:
           build-args: |
             NGINX_PROXY_VERSION=${{ steps.nginx-proxy_version.outputs.VERSION }}
             DOCKER_GEN_VERSION=${{ steps.docker-gen_version.outputs.VERSION }}
-          platforms: linux/amd64,linux/arm64,linux/s390x,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
           sbom: true
           push: true
           provenance: mode=max

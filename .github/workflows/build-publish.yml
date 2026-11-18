@@ -29,7 +29,7 @@ jobs:
       matrix:
         flavor: [alpine, debian, dockergen]
     runs-on: ubuntu-latest
-    if: (github.event_name == 'schedule' && github.repository == 'nginx-proxy/nginx-proxy') || (github.event_name != 'schedule')
+    if: (github.event_name == 'schedule' && github.repository == 'Kosette/nginx-proxy') || (github.event_name != 'schedule')
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -49,9 +49,8 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: |
-            ghcr.io/nginx-proxy/nginx-proxy
-            nginxproxy/nginx-proxy
-            jwilder/nginx-proxy
+            ghcr.io/Kosette/nginx-proxy
+            ${{secrets.DOCKERHUB_USERNAME}}/nginx-proxy
           tags: |
             type=semver,pattern={{version}},enable=${{ matrix.flavor == 'debian' }}
             type=semver,pattern={{major}}.{{minor}},enable=${{ matrix.flavor == 'debian' }}
@@ -96,7 +95,7 @@ jobs:
           build-args: |
             NGINX_PROXY_VERSION=${{ steps.nginx-proxy_version.outputs.VERSION }}
             DOCKER_GEN_VERSION=${{ steps.docker-gen_version.outputs.VERSION }}
-          platforms: linux/amd64,linux/arm64,linux/s390x,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
           sbom: true
           push: true
           provenance: mode=max
