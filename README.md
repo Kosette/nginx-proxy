@@ -20,7 +20,7 @@
 
 [![Test](https://github.com/nginx-proxy/nginx-proxy/actions/workflows/test.yml/badge.svg)](https://github.com/nginx-proxy/nginx-proxy/actions/workflows/test.yml)
 [![GitHub release](https://img.shields.io/github/v/release/nginx-proxy/nginx-proxy)](https://github.com/nginx-proxy/nginx-proxy/releases)
-[![nginx 1.31.6](https://img.shields.io/badge/nginx-1.31.6-brightgreen.svg?logo=nginx)](https://nginx.org/en/CHANGES)
+[![nginx 1.31.9](https://img.shields.io/badge/nginx-1.31.9-brightgreen.svg?logo=nginx)](https://nginx.org/en/CHANGES)
 [![Docker Image Size](https://img.shields.io/docker/image-size/nginxproxy/nginx-proxy?sort=semver)](https://hub.docker.com/r/nginxproxy/nginx-proxy "Click to view the image on Docker Hub")
 [![Docker stars](https://img.shields.io/docker/stars/nginxproxy/nginx-proxy.svg)](https://hub.docker.com/r/nginxproxy/nginx-proxy "DockerHub")
 [![Docker pulls](https://img.shields.io/docker/pulls/nginxproxy/nginx-proxy.svg)](https://hub.docker.com/r/nginxproxy/nginx-proxy "DockerHub")
@@ -99,16 +99,18 @@ docker pull nginxproxy/nginx-proxy:1.11-dockergen
 
 Please check the [docs section](https://github.com/nginx-proxy/nginx-proxy/tree/main/docs).
 
-### Powered by 
+### Powered by
 
 [![GoLand logo](https://resources.jetbrains.com/storage/products/company/brand/logos/GoLand_icon.svg)](https://www.jetbrains.com/go/)
 [![PyCharm logo](https://resources.jetbrains.com/storage/products/company/brand/logos/PyCharm_icon.svg)](https://www.jetbrains.com/pycharm/)
 
 ## About this repository
+
 > [!NOTE]
 > This repository is officially maintained by <strong>ZeroSSL</strong> as part of our commitment to secure and reliable SSL/TLS solutions.  
 > We welcome contributions and feedback from the community!  
 > For more information about our services, including free and paid SSL/TLS certificates, visit https://zerossl.com.
+
 <p align="center">
 	<a href="https://zerossl.com">
 		<picture>

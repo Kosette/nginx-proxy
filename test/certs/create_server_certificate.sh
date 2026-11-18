@@ -1,9 +1,9 @@
 #!/bin/bash
 set -u
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ "$#" -eq 0 ]]; then
-	cat <<-EOF
+  cat <<-EOF
 
 	To generate a server certificate, provide the domain name as a parameter:
 	    $(basename $0) www.my-domain.tdl
@@ -13,18 +13,17 @@ if [[ "$#" -eq 0 ]]; then
 	    $(basename $0) '*.my-domain.tdl'
 
 	EOF
-	exit 0
+  exit 0
 else
-	DOMAIN="$1"
-	ALTERNATE_DOMAINS="DNS:$( echo "$@" | sed 's/ /,DNS:/g')"
+  DOMAIN="$1"
+  ALTERNATE_DOMAINS="DNS:$(echo "$@" | sed 's/ /,DNS:/g')"
 fi
-
 
 ###############################################################################
 # Create a nginx container (which conveniently provides the `openssl` command)
 ###############################################################################
 
-CONTAINER=$(docker run -d -v $DIR:/work -w /work -e SAN="$ALTERNATE_DOMAINS" nginx:1.31.6)
+CONTAINER=$(docker run -d -v $DIR:/work -w /work -e SAN="$ALTERNATE_DOMAINS" nginx:1.31.9)
 # Configure openssl
 docker exec $CONTAINER bash -c '
 	mkdir -p /ca/{certs,crl,private,newcerts} 2>/dev/null
@@ -113,42 +112,40 @@ docker exec $CONTAINER bash -c '
 
 # shortcut for calling `openssl` inside the container
 function openssl {
-	docker exec $CONTAINER openssl "$@"
+  docker exec $CONTAINER openssl "$@"
 }
 
 function exitfail {
-		echo
-		echo ERROR: "$@"
-		docker rm -f $CONTAINER
-		exit 1
+  echo
+  echo ERROR: "$@"
+  docker rm -f $CONTAINER
+  exit 1
 }
-
 
 ###############################################################################
 # Setup Certificate authority
 ###############################################################################
 
 if ! [[ -f "$DIR/ca-root.key" ]]; then
-	echo
-	echo "> Create a Certificate Authority root key: $DIR/ca-root.key"
-	openssl genrsa -out ca-root.key 2048
-	[[ $? -eq 0 ]] || exitfail failed to generate CA root key
+  echo
+  echo "> Create a Certificate Authority root key: $DIR/ca-root.key"
+  openssl genrsa -out ca-root.key 2048
+  [[ $? -eq 0 ]] || exitfail failed to generate CA root key
 fi
 
 # Create a CA root certificate
 if ! [[ -f "$DIR/ca-root.crt" ]]; then
-	echo
-	echo "> Create a CA root certificate: $DIR/ca-root.crt"
-	openssl req -config /ca/openssl.cnf \
-	-key ca-root.key \
-	-new -x509 -days 3650 -subj "/O=nginx-proxy test suite/CN=www.nginx-proxy.tld" -extensions v3_ca \
-	-out ca-root.crt
-	[[ $? -eq 0 ]] || exitfail failed to generate CA root certificate
+  echo
+  echo "> Create a CA root certificate: $DIR/ca-root.crt"
+  openssl req -config /ca/openssl.cnf \
+    -key ca-root.key \
+    -new -x509 -days 3650 -subj "/O=nginx-proxy test suite/CN=www.nginx-proxy.tld" -extensions v3_ca \
+    -out ca-root.crt
+  [[ $? -eq 0 ]] || exitfail failed to generate CA root certificate
 
-	# Verify certificate
-	openssl x509 -noout -text -in ca-root.crt
+  # Verify certificate
+  openssl x509 -noout -text -in ca-root.crt
 fi
-
 
 ###############################################################################
 # create server key and certificate signed by the certificate authority
@@ -162,22 +159,20 @@ echo
 echo "> Create a host certificate signing request"
 
 SAN="$ALTERNATE_DOMAINS" openssl req -config /ca/openssl.cnf \
-	-key "$DOMAIN.key" \
-	-new -out "/ca/$DOMAIN.csr" -days 1000 -extensions san_env -subj "/CN=$DOMAIN"
-	[[ $? -eq 0 ]] || exitfail failed to generate server certificate signing request
+  -key "$DOMAIN.key" \
+  -new -out "/ca/$DOMAIN.csr" -days 1000 -extensions san_env -subj "/CN=$DOMAIN"
+[[ $? -eq 0 ]] || exitfail failed to generate server certificate signing request
 
 echo
 echo "> Create server certificate: $DIR/$DOMAIN.crt"
 SAN="$ALTERNATE_DOMAINS" openssl ca -config /ca/openssl.cnf -batch \
-		-extensions server_cert \
-		-extensions san_env \
-		-in "/ca/$DOMAIN.csr" \
-		-out "$DOMAIN.crt"
-	[[ $? -eq 0 ]] || exitfail failed to generate server certificate
-
+  -extensions server_cert \
+  -extensions san_env \
+  -in "/ca/$DOMAIN.csr" \
+  -out "$DOMAIN.crt"
+[[ $? -eq 0 ]] || exitfail failed to generate server certificate
 
 # Verify host certificate
 #openssl x509 -noout -text -in "$DOMAIN.crt"
-
 
 docker rm -f $CONTAINER >/dev/null
